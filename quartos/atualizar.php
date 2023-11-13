@@ -8,23 +8,25 @@ $capacidade = $data['capacidade'];
 $diaria = $data['diaria'];
 $disponivel = $data['disponivel'];
 
-$sql = "INSERT INTO quartos (numero, capacidade, diaria, disponivel) VALUES (?, ?, ?, ?)";
+
+$sql = "UPDATE quartos SET capacidade = ?, diaria = ?, disponivel = ? WHERE numero = ?";
 $stmt = $conn->prepare($sql);
-$stmt->bindParam(1, $numero);
-$stmt->bindParam(2, $capacidade);
-$stmt->bindParam(3, $diaria);
-$stmt->bindParam(4, $disponivel);
+$stmt->bindParam(1, $capacidade);
+$stmt->bindParam(2, $diaria);
+$stmt->bindParam(3, $disponivel);
+$stmt->bindParam(4, $numero);
+
 if ($stmt->execute()) {
     $response = [
         'success' => true,
         'status' => 200,
-        'message' => 'Cliente cadastrado com sucesso!'
+        'message' => 'Cliente atualizado com sucesso!'
     ];
 } else {
     $response = [
         'success' => false,
         'status' => 500,
-        'message' => 'Erro ao cadastrar o cliente.'
+        'message' => 'Erro ao atualizar o cliente.'
     ];
 }
 
