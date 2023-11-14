@@ -4,17 +4,17 @@ require_once '../config.php';
 $json_data = file_get_contents("php://input");
 $data = json_decode($json_data, true);
 $nome = $data['nome'];
+$cpf = $data['cpf'];
 $email = $data['email'];
 $fone = $data['fone'];
-$cpf = $data['cpf'];
 $hosted = $data['hosted'];
 
-$sql = "INSERT INTO clientes (nome, email, telefone, cpf, hospedado) VALUES (?, ?, ?, ?, ?)";
+$sql = "INSERT INTO clientes (nome, cpf, email, telefone, hospedado) VALUES (?, ?, ?, ?, ?)";
 $stmt = $conn->prepare($sql);
 $stmt->bindParam(1, $nome);
-$stmt->bindParam(2, $email);
-$stmt->bindParam(3, $fone);
-$stmt->bindParam(4, $cpf);
+$stmt->bindParam(2, $cpf);
+$stmt->bindParam(3, $email);
+$stmt->bindParam(4, $fone);
 $stmt->bindParam(5, $hosted);
 if ($stmt->execute()) {
     $response = [

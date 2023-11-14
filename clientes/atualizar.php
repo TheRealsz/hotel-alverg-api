@@ -10,7 +10,7 @@ $fone = $data['fone'];
 $cpf = $data['cpf'];
 $hosted = $data['hosted'];
 
-$sql = "UPDATE clientes SET nome = ?, email = ?, telefone = ?, cpf = ?, hospedado = ? WHERE ID = ?";
+$sql = "UPDATE clientes SET nome = ?, email = ?, telefone = ?, cpf = ?, hospedado = ? WHERE id_cliente = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bindParam(1, $nome);
 $stmt->bindParam(2, $email);
