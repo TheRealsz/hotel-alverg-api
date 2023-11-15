@@ -5,7 +5,7 @@ $json_data = file_get_contents("php://input");
 $data = json_decode($json_data, true);
 $numero = $data['numero'];
 
-$sql = "DELETE FROM quartos WHERE numero = ?";
+$sql = "DELETE FROM quartos WHERE numero_quarto = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bindParam(1, $numero);
 

@@ -9,7 +9,7 @@ $diaria = $data['diaria'];
 $disponivel = $data['disponivel'];
 
 
-$sql = "UPDATE quartos SET capacidade = ?, diaria = ?, disponivel = ? WHERE numero = ?";
+$sql = "UPDATE quartos SET capacidade = ?, valor_diaria = ?, disponivel = ? WHERE numero_quarto = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bindParam(1, $capacidade);
 $stmt->bindParam(2, $diaria);

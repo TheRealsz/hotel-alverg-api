@@ -8,7 +8,7 @@ $capacidade = $data['capacidade'];
 $diaria = $data['diaria'];
 $disponivel = $data['disponivel'];
 
-$sql = "INSERT INTO quartos (numero, capacidade, diaria, disponivel) VALUES (?, ?, ?, ?)";
+$sql = "INSERT INTO quartos (numero_quarto, capacidade, valor_diaria, disponivel) VALUES (?, ?, ?, ?)";
 $stmt = $conn->prepare($sql);
 $stmt->bindParam(1, $numero);
 $stmt->bindParam(2, $capacidade);
