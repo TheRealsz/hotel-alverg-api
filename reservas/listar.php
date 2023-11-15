@@ -1,7 +1,7 @@
 <?php
 require_once '../config.php';
 
-$sql = "SELECT * FROM quartos";
+$sql = "SELECT * FROM reservas";
 $stmt = $conn->query($sql);
 
 if ($stmt) {
@@ -14,7 +14,7 @@ if ($stmt) {
     $response = [
         'success' => false,
         'status' => 500,
-        'message' => 'Erro ao buscar os quartos.'
+        'message' => 'Erro ao buscar as reservas.'
     ];
 }
 

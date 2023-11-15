@@ -20,13 +20,13 @@ if ($stmt->execute()) {
     $response = [
         'success' => true,
         'status' => 200,
-        'message' => 'Cliente atualizado com sucesso!'
+        'message' => 'Quarto atualizado com sucesso!'
     ];
 } else {
     $response = [
         'success' => false,
         'status' => 500,
-        'message' => 'Erro ao atualizar o cliente.'
+        'message' => 'Erro ao atualizar o quarto.'
     ];
 }
 

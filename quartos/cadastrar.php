@@ -18,13 +18,13 @@ if ($stmt->execute()) {
     $response = [
         'success' => true,
         'status' => 200,
-        'message' => 'Cliente cadastrado com sucesso!'
+        'message' => 'Quarto cadastrado com sucesso!'
     ];
 } else {
     $response = [
         'success' => false,
         'status' => 500,
-        'message' => 'Erro ao cadastrar o cliente.'
+        'message' => 'Erro ao cadastrar o quarto.'
     ];
 }
 
