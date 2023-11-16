@@ -7,15 +7,45 @@ $nome = $data['nome'];
 $cpf = $data['cpf'];
 $email = $data['email'];
 $fone = $data['fone'];
-$hosted = $data['hosted'];
 
-$sql = "INSERT INTO clientes (nome, cpf, email, telefone, hospedado) VALUES (?, ?, ?, ?, ?)";
+$sql = "SELECT * FROM clientes WHERE cpf = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bindParam(1, $cpf);
+$stmt->execute();
+$cliente = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if ($cliente) {
+    $response = [
+        'success' => false,
+        'status' => 500,
+        'message' => 'CPF já cadastrado.'
+    ];
+    echo json_encode($response);
+    exit;
+}
+
+$sql = "SELECT * FROM clientes WHERE email = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bindParam(1, $email);
+$stmt->execute();
+$cliente = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if($cliente) {
+    $response = [
+        'success' => false,
+        'status' => 500,
+        'message' => 'E-mail já cadastrado.'
+    ];
+    echo json_encode($response);
+    exit;
+}
+
+$sql = "INSERT INTO clientes (nome, cpf, email, telefone, hospedado) VALUES (?, ?, ?, ?, 0)";
 $stmt = $conn->prepare($sql);
 $stmt->bindParam(1, $nome);
 $stmt->bindParam(2, $cpf);
 $stmt->bindParam(3, $email);
 $stmt->bindParam(4, $fone);
-$stmt->bindParam(5, $hosted);
 if ($stmt->execute()) {
     $response = [
         'success' => true,
