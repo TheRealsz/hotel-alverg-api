@@ -6,7 +6,35 @@ $data = json_decode($json_data, true);
 $numero = $data['numero'];
 $capacidade = $data['capacidade'];
 $diaria = $data['diaria'];
-$disponivel = $data['disponivel'];
+
+$sql = "SELECT * FROM quartos WHERE numero_quarto = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bindParam(1, $numero);
+$stmt->execute();
+$quarto = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if(!$quarto) {
+    $response = [
+        'success' => false,
+        'status' => 500,
+        'message' => 'Quarto não encontrado.'
+    ];
+    echo json_encode($response);
+    exit;
+}
+
+if ($capacidade < 1 || $capacidade > 5) {
+    $response = [
+        'success' => false,
+        'status' => 500,
+        'message' => 'Capacidade inválida.'
+    ];
+    echo json_encode($response);
+    exit;
+}
+
+$disponivel = $quarto['disponivel'];
+
 
 
 $sql = "UPDATE quartos SET capacidade = ?, valor_diaria = ?, disponivel = ? WHERE numero_quarto = ?";

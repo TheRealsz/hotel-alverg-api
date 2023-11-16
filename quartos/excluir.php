@@ -5,6 +5,32 @@ $json_data = file_get_contents("php://input");
 $data = json_decode($json_data, true);
 $numero = $data['numero'];
 
+$sql = "SELECT * FROM quartos WHERE numero_quarto = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bindParam(1, $numero);
+$stmt->execute();
+$quarto = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if (!$quarto) {
+    $response = [
+        'success' => false,
+        'status' => 500,
+        'message' => 'Quarto não encontrado.'
+    ];
+    echo json_encode($response);
+    exit;
+}
+
+if ($quarto['disponivel'] == 0) {
+    $response = [
+        'success' => false,
+        'status' => 500,
+        'message' => 'Não é possível excluir um quarto ocupado.'
+    ];
+    echo json_encode($response);
+    exit;
+}
+
 $sql = "DELETE FROM quartos WHERE numero_quarto = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bindParam(1, $numero);
