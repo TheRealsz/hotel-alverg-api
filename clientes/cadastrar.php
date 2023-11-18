@@ -8,55 +8,40 @@ $cpf = $data['cpf'];
 $email = $data['email'];
 $fone = $data['fone'];
 
-$sql = "SELECT * FROM clientes WHERE cpf = ?";
-$stmt = $conn->prepare($sql);
-$stmt->bindParam(1, $cpf);
-$stmt->execute();
-$cliente = $stmt->fetch(PDO::FETCH_ASSOC);
+try {
+    if(!$nome || !$cpf || !$email || !$fone) {
+        throw new Exception('Preencha todos os campos.');
+    }
 
-if ($cliente) {
-    $response = [
-        'success' => false,
-        'status' => 500,
-        'message' => 'CPF já cadastrado.'
-    ];
-    echo json_encode($response);
-    exit;
-}
+    $stmt = $conn->prepare("SELECT * FROM clientes WHERE cpf = ?");
+    $stmt->execute([$cpf]);
+    $cliente = $stmt->fetch(PDO::FETCH_ASSOC);
 
-$sql = "SELECT * FROM clientes WHERE email = ?";
-$stmt = $conn->prepare($sql);
-$stmt->bindParam(1, $email);
-$stmt->execute();
-$cliente = $stmt->fetch(PDO::FETCH_ASSOC);
+    if ($cliente) {
+        throw new Exception('CPF já cadastrado.');
+    }
 
-if($cliente) {
-    $response = [
-        'success' => false,
-        'status' => 500,
-        'message' => 'E-mail já cadastrado.'
-    ];
-    echo json_encode($response);
-    exit;
-}
+    $stmt = $conn->prepare("SELECT * FROM clientes WHERE email = ?");
+    $stmt->execute([$email]);
+    $cliente = $stmt->fetch(PDO::FETCH_ASSOC);
 
-$sql = "INSERT INTO clientes (nome, cpf, email, telefone, hospedado) VALUES (?, ?, ?, ?, 0)";
-$stmt = $conn->prepare($sql);
-$stmt->bindParam(1, $nome);
-$stmt->bindParam(2, $cpf);
-$stmt->bindParam(3, $email);
-$stmt->bindParam(4, $fone);
-if ($stmt->execute()) {
+    if ($cliente) {
+        throw new Exception('E-mail já cadastrado.');
+    }
+
+    $stmt = $conn->prepare("INSERT INTO clientes (nome, cpf, email, telefone, hospedado) VALUES (?, ?, ?, ?, 0)");
+    $stmt->execute([$nome, $cpf, $email, $fone]);
+
     $response = [
         'success' => true,
         'status' => 200,
         'message' => 'Cliente cadastrado com sucesso!'
     ];
-} else {
+} catch (Exception $e) {
     $response = [
         'success' => false,
         'status' => 500,
-        'message' => 'Erro ao cadastrar o cliente.'
+        'message' => "Erro ao cadastrar cliente: " .$e->getMessage()
     ];
 }
 

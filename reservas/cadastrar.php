@@ -10,78 +10,68 @@ $data_entrada = $data['data_entrada'];
 $data_saida = $data['data_saida'];
 $forma_pagamento = $data['forma_pagamento'];
 
-$sql = "SELECT nome FROM clientes WHERE id_cliente = ?";
-$stmt = $conn->prepare($sql);
-$stmt->bindParam(1, $id_cliente);
-$stmt->execute();
-$cliente = $stmt->fetch(PDO::FETCH_ASSOC);
+try {
+    $stmt = $conn->prepare("SELECT * FROM clientes WHERE id_cliente = ?");
+    $stmt->bindParam(1, $id_cliente);
+    $stmt->execute();
+    $cliente = $stmt->fetch(PDO::FETCH_ASSOC);
 
-if (!$cliente) {
-    $response = [
-        'success' => false,
-        'status' => 400,
-        'message' => 'Cliente não encontrado.'
-    ];
-    echo json_encode($response);
-    exit;
-}
+    if (!$cliente) {
+        throw new Exception('Cliente não encontrado.');
+    }
 
-$nome_cliente = $cliente['nome'];
+    if($cliente['hospedado']) {
+        throw new Exception('Cliente já está hospedado.');
+    }
 
+    $nome_cliente = $cliente['nome'];
 
-$sql = "SELECT numero_quarto FROM quartos WHERE numero_quarto = ?";
-$stmt = $conn->prepare($sql);
-$stmt->bindParam(1, $numero_quarto);
-$stmt->execute();
-$quarto = $stmt->fetch(PDO::FETCH_ASSOC);
+    $stmt = $conn->prepare("SELECT numero_quarto, disponivel FROM quartos WHERE numero_quarto = ?");
+    $stmt->bindParam(1, $numero_quarto);
+    $stmt->execute();
+    $quarto = $stmt->fetch(PDO::FETCH_ASSOC);
 
-if (!$quarto) {
-    $response = [
-        'success' => false,
-        'status' => 400,
-        'message' => 'Quarto não encontrado.'
-    ];
-    echo json_encode($response);
-    exit;
-} 
+    if (!$quarto) {
+        throw new Exception('Quarto não encontrado.');
+    }
 
-$sql = "SELECT disponivel FROM quartos WHERE numero_quarto = ?";
-$stmt = $conn->prepare($sql);
-$stmt->bindParam(1, $numero_quarto);
-$stmt->execute();
-$disponivel = $stmt->fetch(PDO::FETCH_ASSOC);
+    if ($data_entrada !== date('Y-m-d')) {
+        throw new Exception('Data de entrada diferente da atual.');
+    }
 
-if ($disponivel == 0) {
-    $response = [
-        'success' => false,
-        'status' => 400,
-        'message' => 'Quarto indisponível.'
-    ];
-    echo json_encode($response);
-    exit;
-}
+    if ($quarto['disponivel'] == 0) {
+        throw new Exception('Quarto indisponível.');
+    }
 
-$quarto = $quarto['numero_quarto'];
+    $quarto_numero = $quarto['numero_quarto'];
 
-$sql = "INSERT INTO reservas (id_cliente, nome_cliente, numero_quarto, data_entrada, data_saida, forma_pagamento) VALUES (?, ?, ?, ?, ?, ?)";
-$stmt = $conn->prepare($sql);
-$stmt->bindParam(1, $id_cliente);
-$stmt->bindParam(2, $nome_cliente);
-$stmt->bindParam(3, $quarto);
-$stmt->bindParam(4, $data_entrada);
-$stmt->bindParam(5, $data_saida);
-$stmt->bindParam(6, $forma_pagamento);
-if ($stmt->execute()) {
+    $stmt = $conn->prepare("INSERT INTO reservas (id_cliente, nome_cliente, numero_quarto, data_entrada, data_saida, forma_pagamento) VALUES (?, ?, ?, ?, ?, ?)");
+    $stmt->bindParam(1, $id_cliente);
+    $stmt->bindParam(2, $nome_cliente);
+    $stmt->bindParam(3, $quarto_numero);
+    $stmt->bindParam(4, $data_entrada);
+    $stmt->bindParam(5, $data_saida);
+    $stmt->bindParam(6, $forma_pagamento);
+    $stmt->execute();
+
+    $stmt = $conn->prepare("UPDATE quartos SET disponivel = 0 WHERE numero_quarto = ?");
+    $stmt->bindParam(1, $numero_quarto);
+    $stmt->execute();
+
+    $stmt = $conn->prepare("UPDATE clientes SET hospedado = 1 WHERE id_cliente = ?");
+    $stmt->bindParam(1, $id_cliente);
+    $stmt->execute();
+    
     $response = [
         'success' => true,
         'status' => 200,
-        'message' => 'Reserva feita com sucesso!'
+        'message' => 'Reserva realizada com sucesso.'
     ];
-} else {
+} catch (Exception $e) {
     $response = [
         'success' => false,
         'status' => 500,
-        'message' => 'Erro ao realizar a reserva.'
+        'message' => $e->getMessage()
     ];
 }
 

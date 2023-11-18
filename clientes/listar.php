@@ -1,20 +1,21 @@
 <?php
 require_once '../config.php';
 
-$sql = "SELECT * FROM clientes";
-$stmt = $conn->query($sql);
 
-if ($stmt) {
+try{
+    $sql = "SELECT * FROM clientes";
+    $stmt = $conn->query($sql);
     $response = [
         'success' => true,
         'status' => 200,
         'data' => $stmt->fetchAll(PDO::FETCH_ASSOC)
     ];
-} else {
+
+} catch(Exception $e) {
     $response = [
         'success' => false,
         'status' => 500,
-        'message' => 'Erro ao buscar os clientes.'
+        'message' => $e->getMessage() || 'Erro ao buscar clientes.'
     ];
 }
 

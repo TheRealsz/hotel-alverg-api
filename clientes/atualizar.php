@@ -9,44 +9,34 @@ $email = $data['email'];
 $fone = $data['fone'];
 $cpf = $data['cpf'];
 
-$sql = "SELECT * FROM clientes WHERE id_cliente = ?";
-$stmt = $conn->prepare($sql);
-$stmt->bindParam(1, $id);
-$stmt->execute();
-$cliente = $stmt->fetch(PDO::FETCH_ASSOC);
+try {
+    if(!$id || !$nome || !$cpf || !$email || !$fone) {
+        throw new Exception('Preencha todos os campos.');
+    }
 
-if (!$cliente) {
-    $response = [
-        'success' => false,
-        'status' => 500,
-        'message' => 'Cliente não encontrado.'
-    ];
-    echo json_encode($response);
-    exit;
-}
+    $stmt = $conn->prepare("SELECT * FROM clientes WHERE id_cliente = ?");
+    $stmt->execute([$id]);
+    $cliente = $stmt->fetch(PDO::FETCH_ASSOC);
 
-$hospedado = $cliente['hospedado'];
+    if (!$cliente) {
+        throw new Exception('Cliente não encontrado.');
+    }
 
-$sql = "UPDATE clientes SET nome = ?, email = ?, telefone = ?, cpf = ?, hospedado = ? WHERE id_cliente = ?";
-$stmt = $conn->prepare($sql);
-$stmt->bindParam(1, $nome);
-$stmt->bindParam(2, $email);
-$stmt->bindParam(3, $fone);
-$stmt->bindParam(4, $cpf);
-$stmt->bindParam(5, $hospedado);
-$stmt->bindParam(6, $id);
+    $hospedado = $cliente['hospedado'];
 
-if ($stmt->execute()) {
+    $stmt = $conn->prepare("UPDATE clientes SET nome = ?, email = ?, telefone = ?, cpf = ?, hospedado = ? WHERE id_cliente = ?");
+    $stmt->execute([$nome, $email, $fone, $cpf, $hospedado, $id]);
+
     $response = [
         'success' => true,
         'status' => 200,
         'message' => 'Cliente atualizado com sucesso!'
     ];
-} else {
+} catch (Exception $e) {
     $response = [
         'success' => false,
         'status' => 500,
-        'message' => 'Erro ao atualizar o cliente.'
+        'message' => "Erro ao atualizar cliente: " .$e->getMessage()
     ];
 }
 

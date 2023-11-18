@@ -4,54 +4,43 @@ require_once '../config.php';
 $json_data = file_get_contents("php://input");
 $data = json_decode($json_data, true);
 $id = $data['id'];
+try {
+    if (!$id) {
+        throw new Exception('ID não informado.');
+    }
+    $stmt =  $conn->prepare("SELECT * FROM clientes WHERE id_cliente = ?");
+    $stmt->execute([$id]);
+    $cliente = $stmt->fetch(PDO::FETCH_ASSOC);
+    if (!$cliente) {
+        throw new Exception('Cliente não encontrado.');
+    }
 
-$sql = "SELECT * FROM clientes WHERE id_cliente = ?";
-$stmt = $conn->prepare($sql);
-$stmt->bindParam(1, $id);
-$stmt->execute();
-$cliente = $stmt->fetch(PDO::FETCH_ASSOC);
+    $stmt = $conn->prepare("SELECT hospedado FROM clientes WHERE id_cliente = ?");
+    $stmt->execute([$id]);
+    $hospedado = $stmt->fetchColumn();
+    if ($hospedado) {
+        throw new Exception('Não é possivel excluir um cliente hospedado.');
+    }
 
-if (!$cliente) {
-    $response = [
-        'success' => false,
-        'status' => 500,
-        'message' => 'Cliente não encontrado.'
-    ];
-    echo json_encode($response);
-    exit;
-}
+    $stmt = $conn->prepare("SELECT * FROM reservas WHERE id_cliente = ?");
+    $stmt->execute([$id]);
+    $reservas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    if ($reservas) {
+        throw new Exception('Não é possivel excluir um cliente com reservas.');
+    }
 
-$sql = "SELECT hospedado FROM clientes WHERE id_cliente = ?";
-$stmt = $conn->prepare($sql);
-$stmt->bindParam(1, $id);
-$stmt->execute();
-$hospedado = $stmt->fetch(PDO::FETCH_ASSOC);
-
-if($hospedado) { 
-    $response = [
-        'success' => false,
-        'status' => 500,
-        'message' => 'Não é possível excluir um cliente hospedado.'
-    ];
-    echo json_encode($response);
-    exit;
-}
-
-$sql = "DELETE FROM clientes WHERE id_cliente = ?";
-$stmt = $conn->prepare($sql);
-$stmt->bindParam(1, $id);
-
-if ($stmt->execute()) {
+    $stmt = $conn->prepare("DELETE FROM clientes WHERE id_cliente = ?");
+    $stmt->execute([$id]);
     $response = [
         'success' => true,
         'status' => 200,
         'message' => 'Cliente excluído com sucesso!'
     ];
-} else {
+} catch (Exception $e) {
     $response = [
         'success' => false,
         'status' => 500,
-        'message' => 'Erro ao excluir o cliente.'
+        'message' => "Erro ao excluir cliente: " .$e->getMessage()
     ];
 }
 
