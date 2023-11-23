@@ -1,20 +1,22 @@
 <?php
 require_once '../config.php';
 
-$sql = "SELECT * FROM quartos";
-$stmt = $conn->query($sql);
+try {
 
-if ($stmt) {
+    $sql = "SELECT * FROM quartos";
+    $stmt = $conn->query($sql);
+
     $response = [
         'success' => true,
         'status' => 200,
         'data' => $stmt->fetchAll(PDO::FETCH_ASSOC)
     ];
-} else {
+
+} catch (Exception $e) {
     $response = [
         'success' => false,
         'status' => 500,
-        'message' => 'Erro ao buscar os quartos.'
+        'message' => $e->getMessage() || 'Erro ao buscar quartos.'
     ];
 }
 

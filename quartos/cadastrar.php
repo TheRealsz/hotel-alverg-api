@@ -7,49 +7,37 @@ $numero = $data['numero'];
 $capacidade = $data['capacidade'];
 $diaria = $data['diaria'];
 
-$sql = "SELECT * FROM quartos WHERE numero_quarto = ?";
-$stmt = $conn->prepare($sql);
-$stmt->bindParam(1, $numero);
-$stmt->execute();
-$quarto = $stmt->fetch(PDO::FETCH_ASSOC);
+try {
+    if (!$numero || !$capacidade || !$diaria) {
+        throw new Exception('Preencha todos os campos.');
+    }
 
-if ($quarto) {
-    $response = [
-        'success' => false,
-        'status' => 500,
-        'message' => 'Número de quarto já cadastrado.'
-    ];
-    echo json_encode($response);
-    exit;
-}
+    $stmt = $conn->prepare("SELECT * FROM quartos WHERE numero_quarto = ?");
+    $stmt->execute([$numero]);
+    $quarto = $stmt->fetch(PDO::FETCH_ASSOC);
 
-if ($capacidade < 1 || $capacidade > 5) {
-    $response = [
-        'success' => false,
-        'status' => 500,
-        'message' => 'Capacidade inválida.'
-    ];
-    echo json_encode($response);
-    exit;
-}
+    if ($quarto) {
+        throw new Exception('Número de quarto já cadastrado.');
+    }
 
+    if ($capacidade < 1 || $capacidade > 5) {   
+        throw new Exception('Capacidade inválida.');
+    }
 
-$sql = "INSERT INTO quartos (numero_quarto, capacidade, valor_diaria, disponivel) VALUES (?, ?, ?, 1)";
-$stmt = $conn->prepare($sql);
-$stmt->bindParam(1, $numero);
-$stmt->bindParam(2, $capacidade);
-$stmt->bindParam(3, $diaria);
-if ($stmt->execute()) {
+    $stmt = $conn->prepare("INSERT INTO quartos (numero_quarto, capacidade, valor_diaria, disponivel) VALUES (?, ?, ?, 1)");
+    $stmt->execute([$numero, $capacidade, $diaria]);
+
     $response = [
         'success' => true,
         'status' => 200,
         'message' => 'Quarto cadastrado com sucesso!'
     ];
-} else {
+
+} catch (Exception $e) {
     $response = [
         'success' => false,
         'status' => 500,
-        'message' => 'Erro ao cadastrar o quarto.'
+        'message' => "Erro ao cadastrar quarto: " . $e->getMessage()
     ];
 }
 

@@ -10,7 +10,11 @@ $fone = $data['fone'];
 $cpf = $data['cpf'];
 
 try {
-    if(!$id || !$nome || !$cpf || !$email || !$fone) {
+    if(!$id) {
+        throw new Exception('ID não informado.');
+    }
+
+    if(!$nome || !$cpf || !$email || !$fone) {
         throw new Exception('Preencha todos os campos.');
     }
 

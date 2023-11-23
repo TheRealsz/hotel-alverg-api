@@ -5,47 +5,37 @@ $json_data = file_get_contents("php://input");
 $data = json_decode($json_data, true);
 $numero = $data['numero'];
 
-$sql = "SELECT * FROM quartos WHERE numero_quarto = ?";
-$stmt = $conn->prepare($sql);
-$stmt->bindParam(1, $numero);
-$stmt->execute();
-$quarto = $stmt->fetch(PDO::FETCH_ASSOC);
+try {
+    if (!$numero) {
+        throw new Exception('Número não informado.');
+    }
 
-if (!$quarto) {
-    $response = [
-        'success' => false,
-        'status' => 500,
-        'message' => 'Quarto não encontrado.'
-    ];
-    echo json_encode($response);
-    exit;
-}
+    $stmt = $conn->prepare("SELECT * FROM quartos WHERE numero_quarto = ?");
+    $stmt->execute([$numero]);
+    $quarto = $stmt->fetch(PDO::FETCH_ASSOC);
 
-if ($quarto['disponivel'] == 0) {
-    $response = [
-        'success' => false,
-        'status' => 500,
-        'message' => 'Não é possível excluir um quarto ocupado.'
-    ];
-    echo json_encode($response);
-    exit;
-}
+    if (!$quarto) {
+        throw new Exception('Quarto não encontrado.');
+    }
 
-$sql = "DELETE FROM quartos WHERE numero_quarto = ?";
-$stmt = $conn->prepare($sql);
-$stmt->bindParam(1, $numero);
+    if ($quarto['disponivel'] == 0) {
+        throw new Exception('Não é possível excluir um quarto ocupado.');
+    }
 
-if ($stmt->execute()) {
+    $stmt = $conn->prepare("DELETE FROM quartos WHERE numero_quarto = ?");
+    $stmt->execute([$numero]);
+    
     $response = [
         'success' => true,
         'status' => 200,
         'message' => 'Quarto excluído com sucesso!'
     ];
-} else {
+
+} catch (Exception $e) {
     $response = [
         'success' => false,
         'status' => 500,
-        'message' => 'Erro ao excluir o quarto.'
+        'message' => "Erro ao excluir quarto: " . $e->getMessage()
     ];
 }
 
