@@ -11,9 +11,14 @@ $data_saida = $data['data_saida'];
 $forma_pagamento = $data['forma_pagamento'];
 
 try {
+    if (!$id_cliente || !$numero_quarto || !$data_entrada || !$forma_pagamento) {
+        throw new Exception('Preencha todos os campos.');
+    }
+
+    $data_saida == "" ? $data_saida = "0000-00-00" : $data_saida = $data_saida;	
+
     $stmt = $conn->prepare("SELECT * FROM clientes WHERE id_cliente = ?");
-    $stmt->bindParam(1, $id_cliente);
-    $stmt->execute();
+    $stmt->execute([$id_cliente]);
     $cliente = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$cliente) {
@@ -26,9 +31,8 @@ try {
 
     $nome_cliente = $cliente['nome'];
 
-    $stmt = $conn->prepare("SELECT numero_quarto, disponivel FROM quartos WHERE numero_quarto = ?");
-    $stmt->bindParam(1, $numero_quarto);
-    $stmt->execute();
+    $stmt = $conn->prepare("SELECT * FROM quartos WHERE numero_quarto = ?");
+    $stmt->execute([$numero_quarto]);
     $quarto = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$quarto) {
@@ -46,21 +50,13 @@ try {
     $quarto_numero = $quarto['numero_quarto'];
 
     $stmt = $conn->prepare("INSERT INTO reservas (id_cliente, nome_cliente, numero_quarto, data_entrada, data_saida, forma_pagamento) VALUES (?, ?, ?, ?, ?, ?)");
-    $stmt->bindParam(1, $id_cliente);
-    $stmt->bindParam(2, $nome_cliente);
-    $stmt->bindParam(3, $quarto_numero);
-    $stmt->bindParam(4, $data_entrada);
-    $stmt->bindParam(5, $data_saida);
-    $stmt->bindParam(6, $forma_pagamento);
-    $stmt->execute();
+    $stmt->execute([$id_cliente, $nome_cliente, $quarto_numero, $data_entrada, $data_saida, $forma_pagamento]);
 
     $stmt = $conn->prepare("UPDATE quartos SET disponivel = 0 WHERE numero_quarto = ?");
-    $stmt->bindParam(1, $numero_quarto);
-    $stmt->execute();
+    $stmt->execute([$quarto_numero]);
 
     $stmt = $conn->prepare("UPDATE clientes SET hospedado = 1 WHERE id_cliente = ?");
-    $stmt->bindParam(1, $id_cliente);
-    $stmt->execute();
+    $stmt->execute([$id_cliente]);
     
     $response = [
         'success' => true,
@@ -71,7 +67,7 @@ try {
     $response = [
         'success' => false,
         'status' => 500,
-        'message' => $e->getMessage()
+        'message' => "Erro ao realizar reserva: " .$e->getMessage()
     ];
 }
 
