@@ -23,11 +23,9 @@ try {
         throw new Exception('Reserva não encontrada.');
     }
 
-    $cliente = $reserva['id_cliente'];
-
-    $stmt = $conn->prepare("SELECT * FROM clientes WHERE id_cliente = ?");
-    $stmt->execute([$cliente]);
-    $cliente = $stmt->fetch(PDO::FETCH_ASSOC);
+    if($reserva['status'] == 0) {
+        throw new Exception('Reserva já finalizada.');
+    }
 
     $stmt = $conn->prepare("UPDATE reservas SET data_saida = ?, forma_pagamento = ? WHERE id_reserva = ?");
     $stmt->execute([$data_saida, $forma_pagamento, $id_reserva]);

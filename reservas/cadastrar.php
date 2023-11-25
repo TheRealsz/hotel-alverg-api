@@ -15,7 +15,7 @@ try {
         throw new Exception('Preencha todos os campos.');
     }
 
-    $data_saida == "" ? $data_saida = "0000-00-00" : $data_saida = $data_saida;	
+    $data_saida == "" ? $data_saida = "" : $data_saida = $data_saida;	
 
     $stmt = $conn->prepare("SELECT * FROM clientes WHERE id_cliente = ?");
     $stmt->execute([$id_cliente]);
@@ -39,8 +39,8 @@ try {
         throw new Exception('Quarto não encontrado.');
     }
 
-    if ($data_entrada !== date('Y-m-d')) {
-        throw new Exception('Data de entrada diferente da atual.');
+    if ($data_saida !== "" && $data_entrada > $data_saida) {
+        throw new Exception('Data de entrada não pode ser maior que a data de saída.');
     }
 
     if ($quarto['disponivel'] == 0) {
@@ -49,7 +49,7 @@ try {
 
     $quarto_numero = $quarto['numero_quarto'];
 
-    $stmt = $conn->prepare("INSERT INTO reservas (id_cliente, nome_cliente, numero_quarto, data_entrada, data_saida, forma_pagamento) VALUES (?, ?, ?, ?, ?, ?)");
+    $stmt = $conn->prepare("INSERT INTO reservas (id_cliente, nome_cliente, numero_quarto, data_entrada, data_saida, forma_pagamento, status) VALUES (?, ?, ?, ?, ?, ?, 1)");
     $stmt->execute([$id_cliente, $nome_cliente, $quarto_numero, $data_entrada, $data_saida, $forma_pagamento]);
 
     $stmt = $conn->prepare("UPDATE quartos SET disponivel = 0 WHERE numero_quarto = ?");

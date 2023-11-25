@@ -18,8 +18,8 @@ try {
         throw new Exception('Reserva não encontrada.');
     }
 
-    if ($reserva['data_saida'] == date('Y-m-d')) {
-        throw new Exception('Reserva já finalizada.');
+    if ($reserva['status'] == 1) {
+        throw new Exception('Reserva em andamento. Finalize-a para excluí-la');
     }
 
     $stmt = $conn->prepare("UPDATE quartos SET disponivel = 1 WHERE numero_quarto = ?");
