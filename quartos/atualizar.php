@@ -27,7 +27,7 @@ try {
     if ($capacidade < 1 || $capacidade > 5) {
         throw new Exception('Capacidade inválida.');
     }
-
+    
     $disponivel = $quarto['disponivel'];
 
     $stmt = $conn->prepare("UPDATE quartos SET capacidade = ?, valor_diaria = ?, disponivel = ? WHERE numero_quarto = ?");

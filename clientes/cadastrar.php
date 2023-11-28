@@ -9,7 +9,7 @@ $email = $data['email'];
 $fone = $data['fone'];
 
 try {
-    if(!$nome || !$cpf || !$email || !$fone) {
+    if (!$nome || !$cpf || !$email || !$fone) {
         throw new Exception('Preencha todos os campos.');
     }
 
@@ -18,6 +18,7 @@ try {
     $cliente = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($cliente) {
+        http_response_code(400);
         throw new Exception('CPF já cadastrado.');
     }
 
@@ -26,6 +27,7 @@ try {
     $cliente = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($cliente) {
+        http_response_code(400);
         throw new Exception('E-mail já cadastrado.');
     }
 
@@ -34,14 +36,12 @@ try {
 
     $response = [
         'success' => true,
-        'status' => 200,
         'message' => 'Cliente cadastrado com sucesso!'
     ];
 } catch (Exception $e) {
     $response = [
         'success' => false,
-        'status' => 500,
-        'message' => "Erro ao cadastrar cliente: " .$e->getMessage()
+        'message' => "Erro ao cadastrar cliente: " . $e->getMessage()
     ];
 }
 
