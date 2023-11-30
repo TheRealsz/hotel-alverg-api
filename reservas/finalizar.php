@@ -7,7 +7,6 @@ $data = json_decode($json_data, true);
 
 $id_reserva = $data['id_reserva'];
 $data_saida = $data['data_saida'];
-
 try {
 
     if (!$id_reserva) {
@@ -15,10 +14,12 @@ try {
     }
 
     if (!$data_saida) {
+        http_response_code(400);
         throw new Exception('Data de saída não informada.');
     }
-
-    if ($data_saida !== date('Y-m-d')) {
+    
+    if ($data_saida != date('Y-m-d')) {
+        http_response_code(400);
         throw new Exception('Data de saída inválida.');
     }
 
@@ -27,10 +28,12 @@ try {
     $reserva = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$reserva) {
+        http_response_code(400);
         throw new Exception('Reserva não encontrada.');
     }
 
     if ($reserva['status'] == 0) {
+        http_response_code(400);
         throw new Exception('Reserva já finalizada.');
     }
 
@@ -45,13 +48,11 @@ try {
 
     $response = [
         'success' => true,
-        'status' => 200,
         'message' => 'Reserva finalizada com sucesso!'
     ];
 } catch (Exception $e) {
     $response = [
         'success' => false,
-        'status' => 500,
         'message' => "Erro ao finalizar reserva: " . $e->getMessage()
     ];
 }

@@ -22,10 +22,12 @@ try {
     $cliente = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$cliente) {
+        http_response_code(400);
         throw new Exception('Cliente não encontrado.');
     }
 
     if($cliente['hospedado']) {
+        http_response_code(400);
         throw new Exception('Cliente já está hospedado.');
     }
 
@@ -36,14 +38,17 @@ try {
     $quarto = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$quarto) {
+        http_response_code(400);
         throw new Exception('Quarto não encontrado.');
     }
 
     if ($data_saida !== "" && $data_entrada > $data_saida) {
+        http_response_code(400);
         throw new Exception('Data de entrada não pode ser maior que a data de saída.');
     }
 
     if ($quarto['disponivel'] == 0) {
+        http_response_code(400);
         throw new Exception('Quarto indisponível.');
     }
 
@@ -60,13 +65,11 @@ try {
     
     $response = [
         'success' => true,
-        'status' => 200,
         'message' => 'Reserva realizada com sucesso.'
     ];
 } catch (Exception $e) {
     $response = [
         'success' => false,
-        'status' => 500,
         'message' => "Erro ao realizar reserva: " .$e->getMessage()
     ];
 }

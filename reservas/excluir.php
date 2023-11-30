@@ -15,10 +15,12 @@ try {
     $reserva = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$reserva) {
+        http_response_code(400);
         throw new Exception('Reserva não encontrada.');
     }
 
     if ($reserva['status'] == 1) {
+        http_response_code(400);
         throw new Exception('Reserva em andamento. Finalize-a para excluí-la');
     }
 
@@ -33,14 +35,12 @@ try {
 
     $response = [
         'success' => true,
-        'status' => 200,
         'message' => 'Reserva excluída com sucesso!'
     ];
 
 } catch (Exception $e) {
     $response = [
         'success' => false,
-        'status' => 500,
         'message' => "Erro ao excluir reserva: " . $e->getMessage()
     ];
 }

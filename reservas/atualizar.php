@@ -20,10 +20,12 @@ try {
     $reserva = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if(!$reserva) {
+        http_response_code(400);
         throw new Exception('Reserva não encontrada.');
     }
 
     if($reserva['status'] == 0) {
+        http_response_code(400);
         throw new Exception('Reserva já finalizada.');
     }
 
@@ -32,14 +34,16 @@ try {
 
     $response = [
         'success' => true,
-        'status' => 200,
         'message' => 'Reserva editada com sucesso!'
     ];
 
 } catch (Exception $e) {
     $response = [
         'success' => false,
-        'status' => 500,
         'message' => "Erro ao editar reserva: " . $e->getMessage()
     ];
 }
+
+echo json_encode($response);
+
+$conn = null;
