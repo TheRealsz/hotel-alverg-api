@@ -15,11 +15,21 @@ try {
     $quarto = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$quarto) {
+        http_response_code(400);
         throw new Exception('Quarto não encontrado.');
     }
 
     if ($quarto['disponivel'] == 0) {
+        http_response_code(400);
         throw new Exception('Não é possível excluir um quarto ocupado.');
+    }
+    
+    $stmt = $conn->prepare("SELECT * FROM reservas WHERE numero_quarto = ?");
+    $stmt->execute([$numero]);
+    $reservas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    if ($reservas) {
+        http_response_code(400);
+        throw new Exception('Não é possível excluir um quarto com reservas.');
     }
 
     $stmt = $conn->prepare("DELETE FROM quartos WHERE numero_quarto = ?");
@@ -27,14 +37,12 @@ try {
     
     $response = [
         'success' => true,
-        'status' => 200,
         'message' => 'Quarto excluído com sucesso!'
     ];
 
 } catch (Exception $e) {
     $response = [
         'success' => false,
-        'status' => 500,
         'message' => "Erro ao excluir quarto: " . $e->getMessage()
     ];
 }

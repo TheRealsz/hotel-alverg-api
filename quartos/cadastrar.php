@@ -11,16 +11,17 @@ try {
     if (!$numero || !$capacidade || !$diaria) {
         throw new Exception('Preencha todos os campos.');
     }
-
     $stmt = $conn->prepare("SELECT * FROM quartos WHERE numero_quarto = ?");
     $stmt->execute([$numero]);
     $quarto = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($quarto) {
+        http_response_code(400);
         throw new Exception('Número de quarto já cadastrado.');
     }
 
-    if ($capacidade < 1 || $capacidade > 5) {   
+    if ($capacidade < 1 || $capacidade > 5) {
+        http_response_code(400);   
         throw new Exception('Capacidade inválida.');
     }
 
@@ -29,14 +30,12 @@ try {
 
     $response = [
         'success' => true,
-        'status' => 200,
         'message' => 'Quarto cadastrado com sucesso!'
     ];
 
 } catch (Exception $e) {
     $response = [
         'success' => false,
-        'status' => 500,
         'message' => "Erro ao cadastrar quarto: " . $e->getMessage()
     ];
 }

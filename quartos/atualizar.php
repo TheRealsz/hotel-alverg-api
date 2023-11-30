@@ -21,10 +21,12 @@ try {
     $quarto = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$quarto) {
+        http_response_code(400);
         throw new Exception('Quarto não encontrado.');
     }
 
     if ($capacidade < 1 || $capacidade > 5) {
+        http_response_code(400);
         throw new Exception('Capacidade inválida.');
     }
     
@@ -35,13 +37,11 @@ try {
 
     $response = [
         'success' => true,
-        'status' => 200,
         'message' => 'Quarto atualizado com sucesso!'
     ];
 } catch (Exception $e) {
     $response = [
         'success' => false,
-        'status' => 500,
         'message' => "Erro ao atualizar quarto: " . $e->getMessage()
     ];
 }

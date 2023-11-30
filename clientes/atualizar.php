@@ -35,13 +35,11 @@ try {
 
     $response = [
         'success' => true,
-        'status' => 200,
         'message' => 'Cliente atualizado com sucesso!'
     ];
 } catch (Exception $e) {
     $response = [
         'success' => false,
-        'status' => 500,
         'message' => "Erro ao atualizar cliente: " .$e->getMessage()
     ];
 }
