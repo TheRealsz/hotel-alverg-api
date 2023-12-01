@@ -42,6 +42,11 @@ try {
         throw new Exception('Quarto não encontrado.');
     }
 
+    if($data_entrada != date('Y-m-d')) {
+        http_response_code(400);
+        throw new Exception('Data de entrada diferente da data de hoje.');
+    }
+
     if ($data_saida !== "" && $data_entrada > $data_saida) {
         http_response_code(400);
         throw new Exception('Data de entrada não pode ser maior que a data de saída.');
