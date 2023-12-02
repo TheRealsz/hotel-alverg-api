@@ -31,6 +31,15 @@ try {
         throw new Exception('E-mail já cadastrado.');
     }
 
+    $cpf = trim($cpf);
+    $cpf = str_replace(array('-', ' '), '', $cpf);
+
+    if(strlen($cpf) != 11) {
+        throw new Exception('O CPF deve ser preenchido no padrão 000.000.000-00.');
+    }
+    
+    $fone = preg_replace("/[^0-9]/", "", $fone);
+
     $stmt = $conn->prepare("INSERT INTO clientes (nome, cpf, email, telefone, hospedado) VALUES (?, ?, ?, ?, 0)");
     $stmt->execute([$nome, $cpf, $email, $fone]);
 
