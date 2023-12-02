@@ -19,7 +19,12 @@ try {
             echo openssl_error_string();
         }
 
-        $clientes[$i]['cpf'] = $decrypted_cpf;
+        $formatted_cpf = preg_replace('/(\d{3})(\d{3})(\d{3})(\d{2})/', '$1.$2.$3-$4', $decrypted_cpf);
+        $clientes[$i]['cpf'] = $formatted_cpf;
+
+        $fone = $cliente['telefone'];
+        $formatted_phone = preg_replace('/(\d{2})(\d{5})(\d{4})/', '($1) $2-$3', $fone);
+        $clientes[$i]['telefone'] = $formatted_phone;
     }
 
     $response = [
