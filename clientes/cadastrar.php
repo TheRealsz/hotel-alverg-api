@@ -32,14 +32,15 @@ try {
     }
 
     $cpf = trim($cpf);
-    $cpf = str_replace(array('-', ' '), '', $cpf);
+    $cpf = str_replace(array('-', '.'), '', $cpf);
 
     if(strlen($cpf) != 11) {
         http_response_code(400);
         throw new Exception('O CPF deve ser preenchido no padrão 000.000.000-00.');
     }
-    
+
     $fone = preg_replace("/[^0-9]/", "", $fone);
+
     if(strlen($fone) != 11) {
         http_response_code(400);
         throw new Exception('O telefone deve ser preenchido no padrão (00) 00000-0000.');
